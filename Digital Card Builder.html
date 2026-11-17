@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909">
+<title>Digital Card Builder</title>
+<style>
+:root{color-scheme:dark;--bg:#090909;--panel:#111110;--panel2:#171715;--ink:#eee9dc;--muted:#999487;--faint:#625e56;--line:rgba(238,233,220,.13);--hot:rgba(238,233,220,.27);--accent:#c65b4b;--accent-rgb:198,91,75;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html{background:var(--bg);min-height:100%}body{margin:0;background:radial-gradient(ellipse at 50% 0%,rgba(var(--accent-rgb),.09),transparent 38%),var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;padding:28px 20px 50px}
+header,.layout{width:min(1180px,100%);margin:auto}header{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:24px}.kicker{font:10px var(--mono);letter-spacing:.17em;text-transform:uppercase;color:var(--accent)}h1{font-size:clamp(27px,5vw,42px);letter-spacing:-.06em;margin:8px 0 5px}.intro{color:var(--muted);font-size:13px;margin:0}.version{font:10px var(--mono);color:var(--faint);letter-spacing:.12em}
+.layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:20px;align-items:start}.editor,.preview-panel{border:1px solid var(--hot);border-radius:15px;background:linear-gradient(145deg,rgba(255,255,255,.025),transparent 40%),var(--panel);box-shadow:0 25px 75px #0008}.editor{padding:22px}.preview-panel{padding:22px;position:sticky;top:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.panel-head h2{font:11px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:0}.panel-head span{font:10px var(--mono);color:var(--faint)}
+.section{border-top:1px solid var(--line);padding-top:17px;margin-top:18px}.section:first-of-type{border:0;padding:0;margin:0}.section-title{font:10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 13px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}label{font:10px var(--mono);color:var(--muted);letter-spacing:.05em}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--ink);padding:10px 11px;font:12px var(--sans);outline:none;}textarea{min-height:66px;resize:vertical;line-height:1.5}input:focus,textarea:focus{border-color:rgba(var(--accent-rgb),.8)}.hint{font:10px var(--mono);color:var(--faint);line-height:1.5;margin:7px 0 0}
+.items{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.015)}.item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.item-top strong{font:10px var(--mono);color:var(--muted);letter-spacing:.08em}.item-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.item-fields .wide{grid-column:1/-1}
+button{border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--ink);border-radius:8px;padding:9px 12px;font:10px var(--mono);letter-spacing:.05em;cursor:pointer;transition:.2s}button:hover{border-color:rgba(var(--accent-rgb),.7);background:rgba(var(--accent-rgb),.1)}button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}button.primary:hover{filter:brightness(1.1)}button.remove{padding:5px 8px;color:#d08a7f}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.export{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}.export button{padding:13px 10px}.export .primary{grid-column:1/-1}.status{min-height:16px;margin:9px 0 0;color:var(--muted);font:10px var(--mono)}
+/* Preview card */
+.card-wrap{max-width:440px;margin:0 auto}.topline{display:flex;justify-content:space-between;align-items:center;margin:0 2px 13px;color:var(--muted);font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;gap:10px}.live{display:flex;align-items:center;gap:7px}.live:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}.window{border:1px solid var(--hot);border-radius:15px;background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),var(--panel);box-shadow:0 25px 70px #0009;overflow:hidden;position:relative}.window:before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}.chrome{height:40px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.dots{display:flex;gap:5px}.dots i{width:6px;height:6px;border-radius:50%;background:#484640}.dots i:first-child{background:var(--accent)}.path{font:9px var(--mono);color:var(--faint)}.content{padding:28px 25px 23px}.eyebrow{font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:flex;gap:9px;align-items:center}.eyebrow:before{content:"";width:20px;height:1px;background:var(--accent)}.identity{display:grid;grid-template-columns:64px 1fr;gap:15px;align-items:center;margin:20px 0}.avatar{width:64px;height:64px;border:1px solid rgba(var(--accent-rgb),.65);border-radius:12px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.1);font:24px var(--mono);position:relative}.avatar:after{content:"";position:absolute;inset:4px;border:1px solid #ffffff16;border-radius:8px}.preview-name{font-size:34px;font-weight:650;letter-spacing:-.065em;line-height:1;margin:0 0 5px}.handle{font:11px var(--mono);color:var(--accent)}.bio{font-size:12px;color:#c8c2b5;line-height:1.6;margin:0}.tagline{font:10px var(--mono);color:var(--faint);margin-top:7px}.rule{height:1px;background:var(--line);margin:21px 0 17px}.sectionhead{display:flex;justify-content:space-between;margin-bottom:10px;color:var(--muted);font:9px var(--mono);letter-spacing:.13em;text-transform:uppercase}.sectionhead span:last-child{color:var(--faint)}.preview-links{display:grid;gap:7px}.preview-link,.preview-project{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:#ffffff04}.iconbox{width:26px;height:26px;border-radius:7px;background:#ffffff0d;display:grid;place-items:center;font:11px var(--mono);flex:none;overflow:hidden}.custom-icon{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}.linktext{display:grid;gap:3px;min-width:0;flex:1}.linktext strong{font-size:11px;font-weight:600}.linktext small{font:9px var(--mono);color:var(--muted);overflow-wrap:anywhere}.arrow{font:15px var(--mono);color:var(--faint)}.preview-project{min-height:59px;padding:8px 11px}.projectdesc{font-size:9px;line-height:1.4;color:var(--muted)}.bottom{display:flex;justify-content:space-between;gap:8px;margin-top:21px;padding-top:13px;border-top:1px solid var(--line);font:8px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.preview-footer{display:flex;justify-content:space-between;margin:11px 2px 0;font:8px var(--mono);color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.preview-panel{position:static}.card-wrap{max-width:510px}}@media(max-width:520px){body{padding:20px 12px 40px}header{align-items:start}.version{display:none}.editor,.preview-panel{padding:16px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.item-fields{grid-template-columns:1fr}.item-fields .wide{grid-column:auto}.content{padding:24px 19px 20px}}
+</style>
+</head>
+<body>
+<header><div><div class="kicker">Personal web presence</div><h1>Digital Card Builder</h1><p class="intro">Fill in your details, preview your card, then generate a standalone HTML file.</p></div><div class="version">LOCAL · NO ACCOUNT · NO UPLOAD</div></header>
+<main class="layout">
+<section class="editor">
+ <div class="panel-head"><h2>Card configuration</h2><span>EDIT YOUR CONTENT</span></div>
+ <div class="section">
+  <h3 class="section-title">01 / Profile</h3>
+  <div class="fields">
+   <div class="field"><label for="name">Display name</label><input id="name" value="name"></div>
+   <div class="field"><label for="handle">Username / handle</label><input id="handle" value="@user"></div>
+   <div class="field"><label for="avatar">Avatar symbol</label><input id="avatar" value=":)" maxlength="5"></div>
+   <div class="field"><label for="tagline">Tagline</label><input id="tagline" value="extra"></div>
+   <div class="field full"><label for="bio">Profile description</label><textarea id="bio">Description</textarea></div>
+   <div class="field"><label for="availability">Top status text</label><input id="availability" value="Available on the network"></div>
+   <div class="field"><label for="eyebrow">Small profile label</label><input id="eyebrow" value="Profile:"></div>
+   <div class="field"><label for="pageTitle">Browser tab title</label><input id="pageTitle" value="E-business card"></div>
+   <div class="field"><label for="pageDescription">Browser description</label><input id="pageDescription" value="Find me online."></div>
+   <div class="field"><label for="profileNumber">Profile number</label><input id="profileNumber" value="Profile / 001"></div>
+   <div class="field"><label for="path">Window path label</label><input id="path" value="~/home/usr/profile"></div>
+   <div class="field"><label for="version">Version label</label><input id="version" value="v.01"></div>
+   <div class="field full"><label for="theme">Card theme</label><select id="theme">
+    <option value="ryoku">Ryoku / Ember</option>
+    <option value="midnight">Midnight Blue</option>
+    <option value="forest">Forest Green</option>
+    <option value="violet">Electric Violet</option>
+    <option value="light">Paper / Light</option>
+   </select><p class="hint">Changes the live preview and the exported card.</p></div>
+   <div class="field"><label for="bottomLeft">Card footer left</label><input id="bottomLeft" value="ciphernul's Ecrad tool"></div>
+   <div class="field"><label for="bottomRight">Card footer right</label><input id="bottomRight" value="Ryoku inspired"></div>
+   <div class="field"><label for="footerLeft">Outside footer left</label><input id="footerLeft" value="chatgpt helped"></div>
+   <div class="field"><label for="footerRight">Outside footer right</label><input id="footerRight" value="Tap in · Say hello"></div>
+  </div>
+ </div>
+ <div class="section">
+  <h3 class="section-title">02 / Contact links</h3>
+  <p class="hint">Edit each contact's label, description, destination URL and icon. For an icon, enter a symbol or a direct image URL.</p>
+  <div class="items" id="contacts"></div>
+  <div class="actions"><button type="button" id="addContact">+ Add contact link</button></div>
+ </div>
+ <div class="section">
+  <h3 class="section-title">03 / Projects</h3>
+  <p class="hint">Each project becomes a clickable row below your contact links. Add a name, description, destination URL and an icon symbol or direct image URL.</p>
+  <div class="items" id="projects"></div>
+  <div class="actions"><button type="button" id="addProject">+ Add project</button></div>
+ </div>
+ <div class="export">
+  <button class="primary" id="download">Generate &amp; download HTML</button>
+  <button id="copy">Copy generated HTML</button>
+  <button id="reset">Reset example data</button>
+ </div>
+ <p class="status" id="status" aria-live="polite">Changes update the preview automatically. Your data stays in this browser page.</p>
+</section>
+<section class="preview-panel">
+ <div class="panel-head"><h2>Live preview</h2><span>HOW YOUR CARD LOOKS</span></div>
+ <div class="card-wrap">
+  <div class="topline"><span class="live" id="pAvailability"></span><span id="pNumber"></span></div>
+  <section class="window">
+   <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="path" id="pPath"></div><div class="path" id="pVersion"></div></div>
+   <div class="content">
+    <div class="eyebrow" id="pEyebrow"></div>
+    <div class="identity"><div class="avatar" id="pAvatar"></div><div><h2 class="preview-name" id="pName"></h2><div class="handle" id="pHandle"></div></div></div>
+    <p class="bio" id="pBio"></p><div class="tagline" id="pTagline"></div>
+    <div class="rule"></div>
+    <div class="sectionhead"><span>Contact me</span><span id="pContactCount"></span></div>
+    <div class="preview-links" id="pContacts"></div>
+    <div id="pProjectSection" hidden><div class="rule"></div><div class="sectionhead"><span>Projects</span><span id="pProjectCount"></span></div><div class="preview-links" id="pProjects"></div></div>
+    <div class="bottom"><span id="pBottomLeft"></span><span id="pBottomRight"></span></div>
+   </div>
+  </section>
+  <div class="preview-footer"><span id="pFooterLeft"></span><span id="pFooterRight"></span></div>
+ </div>
+</section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const fieldIds = ["name","handle","avatar","tagline","bio","availability","eyebrow","pageTitle","pageDescription","profileNumber","path","version","bottomLeft","bottomRight","footerLeft","footerRight"];
+const themePalettes = {
+ ryoku:{bg:"#090909",panel:"#111110",panel2:"#171715",ink:"#eee9dc",muted:"#999487",faint:"#625e56",line:"rgba(238,233,220,.13)",hot:"rgba(238,233,220,.27)",accent:"#c65b4b",rgb:"198,91,75",dark:true},
+ midnight:{bg:"#070d18",panel:"#101a2a",panel2:"#17243a",ink:"#e8f0ff",muted:"#9aabc5",faint:"#61728e",line:"rgba(205,222,255,.14)",hot:"rgba(205,222,255,.28)",accent:"#65a9ff",rgb:"101,169,255",dark:true},
+ forest:{bg:"#08110d",panel:"#101b15",panel2:"#19271f",ink:"#e7f1e8",muted:"#9baa9c",faint:"#647568",line:"rgba(218,239,221,.14)",hot:"rgba(218,239,221,.28)",accent:"#78bd87",rgb:"120,189,135",dark:true},
+ violet:{bg:"#10091a",panel:"#1a1026",panel2:"#261735",ink:"#f1e9ff",muted:"#b1a0c7",faint:"#766488",line:"rgba(238,220,255,.14)",hot:"rgba(238,220,255,.28)",accent:"#b58aff",rgb:"181,138,255",dark:true},
+ light:{bg:"#eeeae1",panel:"#fbf9f4",panel2:"#f0ece3",ink:"#24231f",muted:"#68645c",faint:"#928c80",line:"rgba(36,35,31,.15)",hot:"rgba(36,35,31,.28)",accent:"#b64e3e",rgb:"182,78,62",dark:false}
+};
+const defaultProfile = Object.fromEntries(fieldIds.map(id=>[id,$(id).value]));
+const defaultTheme = "ryoku";
+function applyTheme(theme){
+ const t=themePalettes[theme]||themePalettes.ryoku, root=document.documentElement;
+ root.dataset.theme=themePalettes[theme]?theme:"ryoku";
+ for(const [key,value] of Object.entries({bg:t.bg,panel:t.panel,panel2:t.panel2,ink:t.ink,muted:t.muted,faint:t.faint,line:t.line,hot:t.hot,accent:t.accent,"accent-rgb":t.rgb})) root.style.setProperty("--"+key,value);
+ root.style.colorScheme=t.dark?"dark":"light";
+}
+function safeUrl(value){
+ try{const u=new URL(String(value||"").trim());return ["http:","https:","mailto:","tel:"].includes(u.protocol)?u.href:""}catch{return ""}
+}
+const defaultContacts = [
+ {name:"New link",detail:"Description",url:"https://example.com/",symbol:">"}
+];
+const defaultProjects = [
+  {name: "New project",description:"A short description of this project.",url:"https://example.com",symbol: ">"}
+];
+let contacts = defaultContacts.map(x=>({...x}));
+let projects = defaultProjects.map(x=>({...x}));
+const esc = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const getProfile = () => Object.fromEntries(fieldIds.map(id=>[id,$(id).value]));
+function itemEditor(item,index,type){
+ const wrap=document.createElement("div");wrap.className="item";
+ const top=document.createElement("div");top.className="item-top";
+ const title=document.createElement("strong");title.textContent=(type==="contact"?"CONTACT ":"PROJECT ")+String(index+1).padStart(2,"0");
+ const remove=document.createElement("button");remove.type="button";remove.className="remove";remove.textContent="Remove";
+ remove.addEventListener("click",()=>{(type==="contact"?contacts:projects).splice(index,1);renderEditors();updatePreview()});
+ top.append(title,remove);
+ const fields=document.createElement("div");fields.className="item-fields";
+ const specs=type==="contact"?[["name","Link label"],["detail","Small description"],["url","Destination URL"],["symbol","Icon symbol or image URL"]]:[["name","Project name"],["description","Project description"],["url","Destination URL"],["symbol","Icon symbol or image URL"]];
+ specs.forEach(([key,label])=>{
+  const box=document.createElement("div");if(key==="url"||key==="symbol"||(type==="project"&&key==="description"))box.className="wide";
+  const lab=document.createElement("label");lab.textContent=label;
+  const input=document.createElement(key==="description"?"textarea":"input");input.value=item[key]||"";input.placeholder=key==="url"?"https://…":key==="symbol"?"◎ or https://example.com/icon.png":label;
+  input.addEventListener("input",()=>{item[key]=input.value;updatePreview()});
+  box.append(lab,input);fields.append(box);
+ });
+ wrap.append(top,fields);return wrap;
+}
+function renderEditors(){
+ $("contacts").replaceChildren(...contacts.map((x,i)=>itemEditor(x,i,"contact")));
+ $("projects").replaceChildren(...projects.map((x,i)=>itemEditor(x,i,"project")));
+}
+function set(id,value){$(id).textContent=value||""}
+function isImageIcon(value){return /^(https?:\/\/|data:image\/)/i.test(String(value||"").trim())}
+function renderIcon(container,value){
+ const iconValue=String(value||">").trim();
+ if(isImageIcon(iconValue)){
+  const img=document.createElement("img");img.className="custom-icon";img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";
+  img.src=iconValue;img.onerror=()=>{img.remove();container.textContent=">"};container.replaceChildren(img);
+ }else container.textContent=iconValue||">";
+}
+function updatePreview(){
+ const p=getProfile();
+ const mapping={pAvailability:"availability",pNumber:"profileNumber",pPath:"path",pVersion:"version",pEyebrow:"eyebrow",pAvatar:"avatar",pName:"name",pHandle:"handle",pBio:"bio",pTagline:"tagline",pBottomLeft:"bottomLeft",pBottomRight:"bottomRight",pFooterLeft:"footerLeft",pFooterRight:"footerRight"};
+ Object.entries(mapping).forEach(([target,source])=>set(target,p[source]));
+ const validContacts=contacts.filter(c=>c.name&&safeUrl(c.url));
+ $("pContactCount").textContent=String(validContacts.length).padStart(2,"0")+" endpoints";
+ $("pContacts").replaceChildren(...validContacts.map(c=>previewRow(c.name,c.detail||c.url,c.symbol||">",false)));
+ const valid=projects.filter(x=>x.name&&x.description&&safeUrl(x.url));
+ $("pProjectSection").hidden=!valid.length;
+ $("pProjectCount").textContent=String(valid.length).padStart(2,"0")+" projects";
+ $("pProjects").replaceChildren(...valid.map(x=>previewRow(x.name,x.description,x.symbol||">",true)));
+ applyTheme($("theme").value);
+ document.title=p.pageTitle||"Digital Card Builder";
+}
+function previewRow(name,detail,symbol,project){
+ const row=document.createElement("div");row.className=project?"preview-project":"preview-link";
+ const icon=document.createElement("span");icon.className="iconbox";renderIcon(icon,symbol);
+ const text=document.createElement("span");text.className="linktext";
+ const strong=document.createElement("strong");strong.textContent=name;
+ const small=document.createElement("small");small.textContent=detail;
+ text.append(strong,small);const arrow=document.createElement("span");arrow.className="arrow";arrow.textContent=">";
+ row.append(icon,text,arrow);return row;
+}
+fieldIds.forEach(id=>$(id).addEventListener("input",updatePreview));
+$("theme").addEventListener("change",updatePreview);
+$("addContact").addEventListener("click",()=>{contacts.push({name:"New link",detail:"Description",url:"https://example.com",symbol:">"});renderEditors();updatePreview()});
+$("addProject").addEventListener("click",()=>{projects.push({name:"New project",description:"A short description of this project.",url:"https://example.com",symbol:">"});renderEditors();updatePreview()});
+function generatedHTML(){
+ const p=getProfile(), theme=$("theme").value, c=contacts.filter(x=>x.name&&safeUrl(x.url)), pr=projects.filter(x=>x.name&&x.description&&safeUrl(x.url));
+ const safeData=JSON.stringify({p,c,pr,theme}).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026");
+ return `<!doctype html>
+<html lang="en" data-theme="${esc(theme)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090909"><meta name="description" content="${esc(p.pageDescription)}"><title>${esc(p.pageTitle)}</title>
+<style>
+:root{color-scheme:dark;--bg:#090909;--surface:#111110;--ink:#eee9dc;--muted:#999487;--faint:#5e5b54;--line:rgba(238,233,220,.13);--hot:rgba(238,233,220,.28);--accent:#c65b4b;--rgb:198,91,75;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(var(--rgb),.1),transparent 42%),linear-gradient(180deg,#0b0b0a,#080808);color:var(--ink);font-family:var(--sans);display:grid;place-items:center;padding:28px 18px;overflow-x:hidden}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.14;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E")}a{color:inherit;text-decoration:none}.shell{width:min(100%,510px);position:relative;animation:rise .8s cubic-bezier(.2,.8,.2,1) both}.topline{display:flex;justify-content:space-between;align-items:center;margin:0 2px 13px;color:var(--muted);font:10px var(--mono);letter-spacing:.14em;text-transform:uppercase}.live{display:inline-flex;align-items:center;gap:8px}.live:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.4s infinite}.window{position:relative;overflow:hidden;border:1px solid var(--hot);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),var(--surface);box-shadow:0 28px 90px #0009}.window:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}.chrome{height:46px;padding:0 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#ffffff04}.dots{display:flex;gap:6px}.dots i{display:block;width:7px;height:7px;border-radius:50%;background:#484640}.dots i:first-child{background:var(--accent)}.path{font:10px var(--mono);color:var(--faint);letter-spacing:.08em}.content{padding:34px clamp(22px,6vw,38px) 28px}.eyebrow{display:flex;align-items:center;gap:10px;color:var(--muted);font:10px var(--mono);letter-spacing:.17em;text-transform:uppercase}.eyebrow:before{content:"";height:1px;width:22px;background:var(--accent)}.identity{display:grid;grid-template-columns:76px 1fr;gap:19px;align-items:center;margin:24px 0 25px}.avatar{width:76px;height:76px;border:1px solid rgba(var(--rgb),.65);border-radius:13px;display:grid;place-items:center;position:relative;background:linear-gradient(145deg,rgba(var(--rgb),.16),#ffffff04);box-shadow:inset 0 0 25px rgba(var(--rgb),.08),0 0 28px rgba(var(--rgb),.08);font:27px var(--mono);color:var(--ink)}.avatar:after{content:"";position:absolute;inset:5px;border:1px solid #ffffff14;border-radius:9px}h1{margin:0 0 6px;font-size:clamp(32px,8vw,43px);font-weight:650;letter-spacing:-.065em;line-height:.98}.handle{font:12px var(--mono);color:var(--accent)}.bio{margin:0;color:#c8c2b5;font-size:14px;line-height:1.65;white-space:pre-wrap}.tagline{color:var(--faint);font:11px var(--mono);letter-spacing:.08em;margin-top:7px}.rule{height:1px;background:var(--line);margin:25px 0 21px}.sectionhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--muted);font:10px var(--mono);letter-spacing:.15em;text-transform:uppercase}.sectionhead span:last-child{color:var(--faint);letter-spacing:.04em}.links{display:grid;gap:9px}.link{display:flex;align-items:center;gap:13px;min-height:58px;padding:0 15px;border:1px solid var(--line);border-radius:10px;background:#ffffff05;transition:transform .22s,border-color .22s,background .22s,box-shadow .22s}.link:hover{transform:translateY(-2px);border-color:rgba(var(--rgb),.65);background:rgba(var(--rgb),.07);box-shadow:0 8px 25px #0003}.link:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.iconbox{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:#ffffff0e;color:var(--ink);font:13px var(--mono);flex:none;overflow:hidden}.custom-icon{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}.linktext{display:grid;gap:3px;flex:1;min-width:0}.linktext strong{font-size:13px;font-weight:570}.linktext small{font:10px var(--mono);color:var(--muted);overflow-wrap:anywhere}.arrow{color:var(--faint);display:flex;align-items:center;justify-content:center;transition:transform .2s,color .2s}.link:hover .arrow{transform:translate(2px,-2px);color:var(--accent)}.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:26px;padding-top:16px;border-top:1px solid var(--line);font:9px var(--mono);letter-spacing:.11em;color:var(--faint);text-transform:uppercase}.footer{display:flex;justify-content:space-between;margin:13px 3px 0;color:var(--faint);font:9px var(--mono);letter-spacing:.1em;text-transform:uppercase}.projects{display:grid;gap:9px}.project{display:flex;align-items:center;gap:13px;min-height:70px;padding:11px 15px;border:1px solid var(--line);border-radius:10px;background:#ffffff05;transition:transform .22s,border-color .22s,background .22s}.project:hover{transform:translateY(-2px);border-color:rgba(var(--rgb),.65);background:rgba(var(--rgb),.07)}.projecttext{display:grid;gap:4px;flex:1;min-width:0}.projecttext strong{font-size:13px;font-weight:570}.projecttext small{font-size:11px;line-height:1.45;color:var(--muted)}@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}@media(max-width:390px){body{padding:18px 12px}.content{padding-top:28px}.identity{grid-template-columns:64px 1fr;gap:14px}.avatar{width:64px;height:64px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+[data-theme="midnight"]{color-scheme:dark;--bg:#070d18;--surface:#101a2a;--ink:#e8f0ff;--muted:#9aabc5;--faint:#61728e;--line:rgba(205,222,255,.14);--hot:rgba(205,222,255,.28);--accent:#65a9ff;--rgb:101,169,255}
+[data-theme="forest"]{color-scheme:dark;--bg:#08110d;--surface:#101b15;--ink:#e7f1e8;--muted:#9baa9c;--faint:#647568;--line:rgba(218,239,221,.14);--hot:rgba(218,239,221,.28);--accent:#78bd87;--rgb:120,189,135}
+[data-theme="violet"]{color-scheme:dark;--bg:#10091a;--surface:#1a1026;--ink:#f1e9ff;--muted:#b1a0c7;--faint:#766488;--line:rgba(238,220,255,.14);--hot:rgba(238,220,255,.28);--accent:#b58aff;--rgb:181,138,255}
+[data-theme="light"]{color-scheme:light;--bg:#eeeae1;--surface:#fbf9f4;--ink:#24231f;--muted:#68645c;--faint:#928c80;--line:rgba(36,35,31,.15);--hot:rgba(36,35,31,.28);--accent:#b64e3e;--rgb:182,78,62}
+[data-theme="light"] body{background:radial-gradient(ellipse at 50% 0%,rgba(var(--rgb),.1),transparent 42%),linear-gradient(180deg,#f4f0e8,#e9e4d9)}
+[data-theme="light"] .bio{color:#514d45}
+[data-theme="light"] .link,[data-theme="light"] .project{background:#00000004}
+</style></head><body><main class="shell"><div class="topline"><span class="live" id="avail"></span><span id="num"></span></div><section class="window"><div class="chrome"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="path" id="path"></div><div class="path" id="ver"></div></div><div class="content"><div class="eyebrow" id="eyebrow"></div><div class="identity"><div class="avatar" id="avatar"></div><div><h1 id="name"></h1><div class="handle" id="handle"></div></div></div><p class="bio" id="bio"></p><div class="tagline" id="tagline"></div><div class="rule"></div><div class="sectionhead"><span>Contact me</span><span id="contactCount"></span></div><nav class="links" id="contacts" aria-label="Contact links"></nav><section id="projectSection" hidden><div class="rule"></div><div class="sectionhead"><span>Projects</span><span id="projectCount"></span></div><div class="projects" id="projects"></div></section><div class="bottom"><span id="bottomLeft"></span><span id="bottomRight"></span></div></div></section><div class="footer"><span id="footerLeft"></span><span id="footerRight"></span></div></main>
+<script>
+const DATA=${safeData};
+const $=id=>document.getElementById(id), put=(id,v)=>$(id).textContent=v||"";
+const p=DATA.p;document.documentElement.dataset.theme=DATA.theme||"ryoku";document.title=p.pageTitle||"Digital card";document.querySelector('meta[name="description"]').content=p.pageDescription||"";
+for(const [id,key] of Object.entries({avail:"availability",num:"profileNumber",path:"path",ver:"version",eyebrow:"eyebrow",avatar:"avatar",name:"name",handle:"handle",bio:"bio",tagline:"tagline",bottomLeft:"bottomLeft",bottomRight:"bottomRight",footerLeft:"footerLeft",footerRight:"footerRight"}))put(id,p[key]);
+const arrow='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
+function addRow(parent,name,detail,symbol,url,project=false){const safe=(()=>{try{const u=new URL(String(url||"").trim());return ["http:","https:","mailto:","tel:"].includes(u.protocol)?u.href:""}catch{return ""}})();if(!safe)return;const a=document.createElement("a");a.className=project?"project":"link";a.href=safe;a.target="_blank";a.rel="noopener noreferrer";const icon=document.createElement("span");icon.className="iconbox";const iconValue=String(symbol||">").trim();if(iconValue.startsWith("https://")||iconValue.startsWith("http://")||iconValue.startsWith("data:image/")){const img=document.createElement("img");img.className="custom-icon";img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.src=iconValue;img.onerror=()=>{img.remove();icon.textContent=">"};icon.append(img)}else icon.textContent=iconValue;const t=document.createElement("span");t.className=project?"projecttext":"linktext";const strong=document.createElement("strong");strong.textContent=name;const small=document.createElement("small");small.textContent=detail;t.append(strong,small);const ar=document.createElement("span");ar.className="arrow";ar.innerHTML=arrow;a.append(icon,t,ar);parent.append(a)}
+DATA.c.forEach(x=>addRow($("contacts"),x.name,x.detail||x.url,x.symbol,x.url));
+put("contactCount",String(DATA.c.length).padStart(2,"0")+" endpoints");
+if(DATA.pr.length){$("projectSection").hidden=false;put("projectCount",String(DATA.pr.length).padStart(2,"0")+" projects");DATA.pr.forEach(x=>addRow($("projects"),x.name,x.description,x.symbol,x.url,true))}
+<\/script></body></html>`;
+}
+$("download").addEventListener("click",()=>{
+ const blob=new Blob([generatedHTML()],{type:"text/html;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="my-digital-card.html";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$("status").textContent="Your digital card HTML has been generated and downloaded.";
+});
+$("copy").addEventListener("click",async()=>{
+ try{await navigator.clipboard.writeText(generatedHTML());$("status").textContent="Generated HTML copied to clipboard."}
+ catch{$("status").textContent="Clipboard access isn't available here. Use Generate & download HTML instead."}
+});
+$("reset").addEventListener("click",()=>{
+ fieldIds.forEach(id=>$(id).value=defaultProfile[id]);$("theme").value=defaultTheme;contacts=defaultContacts.map(x=>({...x}));projects=[];renderEditors();updatePreview();$("status").textContent="Example data restored.";
+});
+renderEditors();updatePreview();
+</script>
+</body></html>`;
+}
